@@ -5225,7 +5225,7 @@ static int stbi__parse_png_file(stbi__png* z, int scan, int req_comp)
                     return 0;
             }
             else if (has_trans) {
-                // non-paletted image with tRNS -> source image has (constant) alpha
+                // non-paletted image with tRNS->source image has (constant) alpha
                 ++s->img_n;
             }
             STBI_FREE(z->expanded); z->expanded = NULL;

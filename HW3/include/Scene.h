@@ -53,8 +53,8 @@ public:
     }
     
     void init( void );
-    void drawSurface(void);
-    void drawDepth(void);
+    void drawSurface( void );
+    void drawDepth( DepthShader* );
     
     // destructor
     ~Scene(){

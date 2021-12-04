@@ -79,10 +79,14 @@ void Scene::init(void) {
     light["sun"] = new Light;
     light["sun"]->position = vec4(3.0f, 2.0f, 1.0f, 0.0f);
     light["sun"]->color = 1.0f * vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    light["sun"]->light_camera->target_default = vec3(0.0f, 1.0f, 0.0f);
+    light["sun"]->light_camera->eye_default = vec3(light["sun"]->position)*10.0f;
+    light["sun"]->light_camera->up_default = vec3(0.0f, 1.0f, 0.0f);
+    light["sun"]->light_camera->reset();
 
-    light["bulb"] = new Light;
-    light["bulb"]->position = vec4(0.0f, 2.0f, 0.0f, 0.0f);
-    light["bulb"]->color = 1.5f * vec4(1.0f, 1.0f, 0.9f, 1.0f);
+    // light["bulb"] = new Light;
+    // light["bulb"]->position = vec4(0.0f, 2.0f, 0.0f, 0.0f);
+    // light["bulb"]->color = 1.5f * vec4(1.0f, 1.0f, 0.9f, 1.0f);
 
     // Build the scene graph
     node["table"] = new Node;
@@ -123,7 +127,7 @@ void Scene::init(void) {
     node["bunny"]->modeltransforms.push_back(scale(vec3(0.8f)) * translate(vec3(0.0f, 1.0f, 0.0f)));
 
     node["floor"]->models.push_back(model["concrete block"]);
-    node["floor"]->modeltransforms.push_back(scale(vec3(100.0f, 0.1f, 100.0f)));
+    node["floor"]->modeltransforms.push_back(scale(vec3(10.0f, 0.1f, 10.0f)));
 
     node["world"]->childnodes.push_back(node["table"]);
     node["world"]->childtransforms.push_back(mat4(1.0f));
@@ -141,22 +145,18 @@ void Scene::init(void) {
     camera->up_default = vec3(0.0f, 1.0f, 0.0f);
     camera->reset();
 
-    // Initialize shader
+    // Initialize SurfaceShader
     surface_shader = new SurfaceShader;
     surface_shader->read_source("shaders/projective.vert", "shaders/lighting.frag");
     surface_shader->compile();
-    glUseProgram(surface_shader->program);
+    // glUseProgram(surface_shader->program);
     surface_shader->initUniforms();
 
-    // Initialize shader
-    depth_shader = new DepthShader;
-    depth_shader->read_source("shaders/depth.vert", "shaders/depth.frag");
-    depth_shader->compile();
-    // glUseProgram(depth_shader->program); // not this 
-    depth_shader->initUniforms();
-
-    // do this ^ in light.cpp
-
-
+    // Initialize DepthShader
+    //depth_shader = new DepthShader;
+    //depth_shader->read_source("shaders/depth.vert", "shaders/depth.frag");
+    //depth_shader->compile();
+    //// glUseProgram(depth_shader->program); // not this 
+    //depth_shader->initUniforms();
 
 }

@@ -5,7 +5,6 @@ DepthShader is a shader that has the uniform
 *****************************************************/
 #include "Shader.h"
 #include <glm/glm.hpp>
-// #include <glm/gtc/type_ptr.hpp>
 #ifndef __DEPTHSHADER_H__
 #define __DEPTHSHADER_H__
 

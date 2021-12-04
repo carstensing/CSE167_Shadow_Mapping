@@ -59,8 +59,13 @@ void display(void){
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
     // scene.drawSurface();
-    scene.drawDepth();
     
+    int count = 0;
+    for (std::pair<std::string, Light*> entry : scene.light) {
+        scene.drawDepth((entry.second)->depth_shader);
+        count++;
+    };
+
     glutSwapBuffers();
     glFlush();
     
@@ -85,16 +90,16 @@ void keyboard(unsigned char key, int x, int y){
             saveScreenShot();
             break;
         case 'r':
-            scene.camera -> aspect_default = float(glutGet(GLUT_WINDOW_WIDTH))/float(glutGet(GLUT_WINDOW_HEIGHT));
-            scene.camera -> reset();
+            scene.camera->aspect_default = float(glutGet(GLUT_WINDOW_WIDTH))/float(glutGet(GLUT_WINDOW_HEIGHT));
+            scene.camera->reset();
             glutPostRedisplay();
             break;
         case 'a':
-            scene.camera -> zoom(0.9f);
+            scene.camera->zoom(0.9f);
             glutPostRedisplay();
             break;
         case 'z':
-            scene.camera -> zoom(1.1f);
+            scene.camera->zoom(1.1f);
             glutPostRedisplay();
             break;
         case 'l':
@@ -113,19 +118,19 @@ void keyboard(unsigned char key, int x, int y){
 void specialKey(int key, int x, int y){
     switch (key) {
         case GLUT_KEY_UP: // up
-            scene.camera -> rotateUp(-10.0f);
+            scene.camera->rotateUp(-10.0f);
             glutPostRedisplay();
             break;
         case GLUT_KEY_DOWN: // down
-            scene.camera -> rotateUp(10.0f);
+            scene.camera->rotateUp(10.0f);
             glutPostRedisplay();
             break;
         case GLUT_KEY_RIGHT: // right
-            scene.camera -> rotateRight(-10.0f);
+            scene.camera->rotateRight(-10.0f);
             glutPostRedisplay();
             break;
         case GLUT_KEY_LEFT: // left
-            scene.camera -> rotateRight(10.0f);
+            scene.camera->rotateRight(10.0f);
             glutPostRedisplay();
             break;
     }

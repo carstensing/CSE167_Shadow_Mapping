@@ -10,10 +10,10 @@ Scene.cpp contains the implementation of the draw command
 
 
 using namespace glm;
-void Scene::drawDepth(void) { 
+void Scene::drawDepth(DepthShader* depth_shader) {
     glUseProgram(depth_shader->program);
-    camera->computeMatrices();
-    depth_shader->projection = camera->proj;
+    light["sun"]->light_camera->computeMatrices();
+    depth_shader->projection = light["sun"]->light_camera->proj;
 
     // Define stacks for depth-first search (DFS)
     std::stack < Node* > dfs_stack;
@@ -21,7 +21,7 @@ void Scene::drawDepth(void) {
 
     // Initialize the current state variable for DFS
     Node* cur = node["world"]; // root of the tree
-    mat4 cur_VM = camera->view;
+    mat4 cur_VM = light["sun"]->light_camera->view;
 
     dfs_stack.push(cur);
     matrix_stack.push(cur_VM);
@@ -63,16 +63,21 @@ void Scene::drawDepth(void) {
 void Scene::drawSurface(void){
     glUseProgram(surface_shader->program);
     // Pre-draw sequence: assign uniforms that are the same for all Geometry::draw call.  These uniforms include the camera view, proj, and the lights.  These uniform do not include modelview and material parameters.
-    camera -> computeMatrices();
-    surface_shader-> view = camera -> view;
-    surface_shader -> projection = camera -> proj;
-    surface_shader -> nlights = light.size();
-    surface_shader -> lightpositions.resize( surface_shader -> nlights );
-    surface_shader -> lightcolors.resize( surface_shader -> nlights );
+    camera->computeMatrices();
+    surface_shader-> view = camera->view;
+    surface_shader->projection = camera->proj;
+
+    light["sun"]->light_camera ->computeMatrices();
+    surface_shader->viewLight = light["sun"]->light_camera->view;
+    surface_shader->projectionLight = light["sun"]->light_camera->view;
+
+    surface_shader->nlights = light.size();
+    surface_shader->lightpositions.resize( surface_shader->nlights );
+    surface_shader->lightcolors.resize( surface_shader->nlights );
     int count = 0;
     for ( std::pair<std::string,Light*> entry : light ){
-        surface_shader -> lightpositions[ count ] = (entry.second) -> position;
-        surface_shader -> lightcolors[ count ] = (entry.second) -> color;
+        surface_shader->lightpositions[ count ] = (entry.second)->position;
+        surface_shader->lightcolors[ count ] = (entry.second)->color;
         count++;
     }
     
@@ -82,7 +87,7 @@ void Scene::drawSurface(void){
     
     // Initialize the current state variable for DFS
     Node* cur = node["world"]; // root of the tree
-    mat4 cur_VM = camera -> view; 
+    mat4 cur_VM = camera->view; 
     
     dfs_stack.push( cur );
     matrix_stack.push( cur_VM );
@@ -100,22 +105,22 @@ void Scene::drawSurface(void){
         cur_VM = matrix_stack.top();     matrix_stack.pop();
         
         // draw all the models at the current node
-        for ( unsigned int i = 0; i < cur -> models.size(); i++ ){
+        for ( unsigned int i = 0; i < cur->models.size(); i++ ){
             // Prepare to draw the geometry. Assign the modelview and the material.
             
-            surface_shader -> modelview = cur_VM * cur -> modeltransforms[i]; // HW3: Without updating cur_VM, modelview would just be camera's view matrix.
-            surface_shader -> material  = ( cur -> models[i] ) -> material;
+            surface_shader->modelview = cur_VM * cur->modeltransforms[i]; // HW3: Without updating cur_VM, modelview would just be camera's view matrix.
+            surface_shader->material  = ( cur->models[i] )->material;
             
             // The draw command
-            surface_shader -> setUniforms();
-            ( cur -> models[i] ) -> geometry -> draw();
+            surface_shader->setUniforms();
+            ( cur->models[i] )->geometry->draw();
         }
         
         // Continue the DFS: put all the child nodes of the current node in the stack
-        for ( unsigned int i = 0; i < cur -> childnodes.size(); i++ ){
-            dfs_stack.push( cur -> childnodes[i] );
+        for ( unsigned int i = 0; i < cur->childnodes.size(); i++ ){
+            dfs_stack.push( cur->childnodes[i] );
             // (HW3 hint: you should do something here)
-            matrix_stack.push( cur_VM * cur -> childtransforms[i] );
+            matrix_stack.push( cur_VM * cur->childtransforms[i] );
         }
         
     } // End of DFS while loop.

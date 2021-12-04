@@ -708,7 +708,7 @@ typedef void (DLL_CALLCONV *FI_InitProc)(Plugin *plugin, int format_id);
 #define RAS_DEFAULT         0
 #define SGI_DEFAULT			0
 #define TARGA_DEFAULT       0
-#define TARGA_LOAD_RGB888   1       // If set the loader converts RGB555 and ARGB8888 -> RGB888.
+#define TARGA_LOAD_RGB888   1       // If set the loader converts RGB555 and ARGB8888->RGB888.
 #define TIFF_DEFAULT        0
 #define TIFF_CMYK			0x0001	// reads/stores tags for separated CMYK (use | to combine with compression flags)
 #define TIFF_PACKBITS       0x0100  // save using PACKBITS compression
