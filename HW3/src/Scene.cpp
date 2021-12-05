@@ -67,9 +67,10 @@ void Scene::drawSurface(void){
     surface_shader-> view = camera->view;
     surface_shader->projection = camera->proj;
 
-    light["sun"]->light_camera ->computeMatrices();
-    surface_shader->viewLight = light["sun"]->light_camera->view;
-    surface_shader->projectionLight = light["sun"]->light_camera->view;
+    // do this?
+    // light["sun"]->light_camera ->computeMatrices();
+    // surface_shader->viewLight = light["sun"]->light_camera->view;
+    // surface_shader->projectionLight = light["sun"]->light_camera->view;
 
     surface_shader->nlights = light.size();
     surface_shader->lightpositions.resize( surface_shader->nlights );

@@ -19,6 +19,10 @@ struct SurfaceShader : Shader {
     glm::mat4 viewLight = glm::mat4(1.0f); GLuint viewLight_loc;
     glm::mat4 projectionLight = glm::mat4(1.0f); GLuint projectionLight_loc;
 
+    //Textures
+    GLuint depthMap;
+    GLuint depthMap_loc;
+
     // material parameters
     Material* material;
     GLuint ambient_loc;
@@ -39,6 +43,8 @@ struct SurfaceShader : Shader {
     
     
     void initUniforms(){
+        depthMap_loc = glGetUniformLocation(program, "depthMap");
+
         view_loc  = glGetUniformLocation( program, "view" );
         modelview_loc  = glGetUniformLocation( program, "modelview" );
         projection_loc = glGetUniformLocation( program, "projection" );
@@ -56,6 +62,8 @@ struct SurfaceShader : Shader {
         
     }
     void setUniforms(){
+        glUniform1f(depthMap_loc, depthMap);
+
         glUniformMatrix4fv(view_loc, 1, GL_FALSE, &view[0][0]);
         glUniformMatrix4fv(modelview_loc, 1, GL_FALSE, &modelview[0][0]);
         glUniformMatrix4fv(projection_loc, 1, GL_FALSE, &projection[0][0]);

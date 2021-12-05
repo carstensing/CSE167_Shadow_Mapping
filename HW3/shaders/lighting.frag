@@ -6,6 +6,8 @@ in vec3 normal;   // raw vertex_normal in the model coord
 uniform mat4 modelview; // from model coord to eye coord
 uniform mat4 view;      // from world coord to eye coord
 
+uniform sampler2D depthMap;
+
 // Material parameters
 uniform vec4 ambient;
 uniform vec4 diffuse;
@@ -25,9 +27,14 @@ out vec4 fragColor;
 
 void main (void){
     if (!enablelighting){
-        // Default normal coloring (you don't need to modify anything here)
+        // Default normal coloring
         vec3 N = normalize(normal);
         fragColor = vec4(0.5f*N + 0.5f , 1.0f);
+
+        float Depth = texture(depthMap, position.xy).x;
+        // Depth = 1.0 - (1.0 - Depth) * 25.0;
+        fragColor = vec4(vec3(Depth), 1.0f);
+        // fragColor = texture(depthMap, position.xy);
 
     } else {
         mat4 camera = inverse(view);
