@@ -1,6 +1,6 @@
 /**************************************************
 SurfaceShader is a shader that has the uniform
- variables for modelview, projection, the
+ variables for model, projection, the
  parameters for the materials, and a list of lights.
 *****************************************************/
 #include "Shader.h"
@@ -12,12 +12,13 @@ SurfaceShader is a shader that has the uniform
 #define __SURFACESHADER_H__
 
 struct SurfaceShader : Shader {
-    // modelview and projection
+    // model and projection
     glm::mat4 view = glm::mat4(1.0f); GLuint view_loc;
-    glm::mat4 modelview = glm::mat4(1.0f); GLuint modelview_loc;
+    glm::mat4 model = glm::mat4(1.0f); GLuint model_loc;
     glm::mat4 projection = glm::mat4(1.0f); GLuint projection_loc;
-    glm::mat4 viewLight = glm::mat4(1.0f); GLuint viewLight_loc;
-    glm::mat4 projectionLight = glm::mat4(1.0f); GLuint projectionLight_loc;
+
+    glm::mat4 viewLS = glm::mat4(1.0f); GLuint viewLS_loc;
+    glm::mat4 projLS = glm::mat4(1.0f); GLuint projLS_loc;
 
     //Textures
     GLuint depthMap;
@@ -44,12 +45,11 @@ struct SurfaceShader : Shader {
     
     void initUniforms(){
         depthMap_loc = glGetUniformLocation(program, "depthMap");
-
         view_loc  = glGetUniformLocation( program, "view" );
-        modelview_loc  = glGetUniformLocation( program, "modelview" );
+        model_loc  = glGetUniformLocation( program, "model" );
         projection_loc = glGetUniformLocation( program, "projection" );
-        viewLight_loc = glGetUniformLocation(program, "viewLight");
-        projectionLight_loc = glGetUniformLocation(program, "projectionLight");
+        viewLS_loc = glGetUniformLocation(program, "viewLS");
+        projLS_loc = glGetUniformLocation(program, "projLS");
         ambient_loc    = glGetUniformLocation( program, "ambient" );
         diffuse_loc    = glGetUniformLocation( program, "diffuse" );
         specular_loc   = glGetUniformLocation( program, "specular" );
@@ -65,10 +65,10 @@ struct SurfaceShader : Shader {
         glUniform1f(depthMap_loc, depthMap);
 
         glUniformMatrix4fv(view_loc, 1, GL_FALSE, &view[0][0]);
-        glUniformMatrix4fv(modelview_loc, 1, GL_FALSE, &modelview[0][0]);
+        glUniformMatrix4fv(model_loc, 1, GL_FALSE, &model[0][0]);
         glUniformMatrix4fv(projection_loc, 1, GL_FALSE, &projection[0][0]);
-        glUniformMatrix4fv(viewLight_loc, 1, GL_FALSE, &viewLight[0][0]);
-        glUniformMatrix4fv(projectionLight_loc, 1, GL_FALSE, &projectionLight[0][0]);
+        glUniformMatrix4fv(viewLS_loc, 1, GL_FALSE, &viewLS[0][0]);
+        glUniformMatrix4fv(projLS_loc, 1, GL_FALSE, &projLS[0][0]);
         glUniform4fv( ambient_loc  , 1, &(material->ambient[0])  );
         glUniform4fv( diffuse_loc  , 1, &(material->diffuse[0])  );
         glUniform4fv( specular_loc , 1, &(material->specular[0]) );

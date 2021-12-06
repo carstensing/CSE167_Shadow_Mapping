@@ -3,10 +3,11 @@
 in vec4 position; // raw vertex_position in the model coord
 in vec3 normal;   // raw vertex_normal in the model coord
 
-uniform mat4 modelview; // from model coord to eye coord
+uniform mat4 model; // from model coord to eye coord
 uniform mat4 view;      // from world coord to eye coord
 
 uniform sampler2D depthMap;
+smooth in vec4 positionLS;
 
 // Material parameters
 uniform vec4 ambient;
@@ -31,14 +32,24 @@ void main (void){
         vec3 N = normalize(normal);
         fragColor = vec4(0.5f*N + 0.5f , 1.0f);
 
-        float Depth = texture(depthMap, position.xy).x;
-        // Depth = 1.0 - (1.0 - Depth) * 25.0;
-        fragColor = vec4(vec3(Depth), 1.0f);
+        vec3 ndc = positionLS.xyz / positionLS.w;	// you can skip the division if using orthographic projection
+	    ndc = ndc * 0.5 + 0.5;	// shift from [-1, 1] to [0, 1]
+	    float depth = texture(depthMap, ndc.xy).r;
+        fragColor = vec4(vec3(depth), 1.f);
+        
+        // float depth = texture(depthMap, positionLS.xy).x;
+        float near = 0.01f;
+        float far = 100.0f;
+        float ndc_z = 2 * depth - 1;
+        float lin_z = (2.0 * near * far) / (far + near - ndc_z * (far - near)); 
+        fragColor = vec4(vec3(lin_z / (far - near)), 1.0f);
+
+        // depth = 1.0 - (1.0 - depth) * 25.0;
+        // fragColor = vec4(vec3(depth), 1.0f);
         // fragColor = texture(depthMap, position.xy);
 
     } else {
         mat4 camera = inverse(view);
-        mat4 model = camera * modelview;
         mat3 model_A = mat3(model[0][0], model[0][1], model[0][2], model[1][0], model[1][1], model[1][2], model[2][0], model[2][1], model[2][2]);
         mat3 model_normalizer = inverse(transpose(model_A));
         vec3 n = normalize(vec3(model_normalizer * normalize(normal)));

@@ -64,13 +64,15 @@ void Scene::drawSurface(void){
     glUseProgram(surface_shader->program);
     // Pre-draw sequence: assign uniforms that are the same for all Geometry::draw call.  These uniforms include the camera view, proj, and the lights.  These uniform do not include modelview and material parameters.
     camera->computeMatrices();
-    surface_shader-> view = camera->view;
+    surface_shader->view = camera->view;
     surface_shader->projection = camera->proj;
+    surface_shader->viewLS = light["sun"]->light_camera->view;
+    surface_shader->projLS = light["sun"]->light_camera->proj;
 
     // do this?
     // light["sun"]->light_camera ->computeMatrices();
-    // surface_shader->viewLight = light["sun"]->light_camera->view;
-    // surface_shader->projectionLight = light["sun"]->light_camera->view;
+    // surface_shader->viewLS = light["sun"]->light_camera->view;
+    // surface_shader->projLS = light["sun"]->light_camera->view;
 
     surface_shader->nlights = light.size();
     surface_shader->lightpositions.resize( surface_shader->nlights );
@@ -109,7 +111,8 @@ void Scene::drawSurface(void){
         for ( unsigned int i = 0; i < cur->models.size(); i++ ){
             // Prepare to draw the geometry. Assign the modelview and the material.
             
-            surface_shader->modelview = cur_VM * cur->modeltransforms[i]; // HW3: Without updating cur_VM, modelview would just be camera's view matrix.
+            surface_shader->view = cur_VM;
+            surface_shader->model = cur->modeltransforms[i];
             surface_shader->material  = ( cur->models[i] )->material;
             
             // The draw command
