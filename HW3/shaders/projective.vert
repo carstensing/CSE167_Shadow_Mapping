@@ -21,5 +21,6 @@ void main(){
     position = vec4( vertex_position, 1.0f );
     normal = vertex_normal;
 
+    // position of current vertex in light space
     positionLS = projLS * viewLS * model * vec4( vertex_position, 1.0f );
 }

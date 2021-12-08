@@ -34,16 +34,16 @@ void main (void){
         vec3 N = normalize(normal);
         fragColor = vec4(0.5f*N + 0.5f , 1.0f);
 
-        vec3 ndc = positionLS.xyz / positionLS.w;	// you can skip the division if using orthographic projection
-	    ndc = ndc * 0.5 + 0.5;	// shift from [-1, 1] to [0, 1]
-	    float depth = texture(depthMap, ndc.xy).r;
-        fragColor = vec4(vec3(depth), 1.f);
-        
-        float near = 0.01f;
-        float far = 100.0f;
-        float ndc_z = 2 * depth - 1;
-        float lin_z = (2.0 * near * far) / (far + near - ndc_z * (far - near)); 
-        fragColor = vec4(vec3(lin_z / (far - near)), 1.0f);
+        // Projecting the light’s depth onto the scene 
+        // vec3 ndc = positionLS.xyz / positionLS.w;	// you can skip the division if using orthographic projection
+	    // ndc = ndc * 0.5 + 0.5;	// shift from [-1, 1] to [0, 1]
+	    // float depth = texture(depthMap, ndc.xy).r;
+        // 
+        // float near = 0.01f;
+        // float far = 100.0f;
+        // float ndc_z = 2 * depth - 1;
+        // float lin_z = (2.0 * near * far) / (far + near - ndc_z * (far - near)); 
+        // fragColor = vec4(vec3(lin_z / (far - near)), 1.0f);
 
     } else {
         mat4 camera = inverse(view);
@@ -57,7 +57,8 @@ void main (void){
 
         vec4 lights = vec4(0);
         for (int i=0; i < nlights; i++) {
-
+            
+            // getting sampled depth from depthMap
             vec3 ndc = positionLS.xyz / positionLS.w;
 	        ndc = ndc * 0.5 + 0.5;
 	        float sampled_depth = texture(depthMap, ndc.xy).r;
@@ -66,11 +67,12 @@ void main (void){
             vec3 l = normalize(vec3(ver_pos.w*lightpositions[i].xyz - lightpositions[i].w*ver_pos.xyz));
             vec3 h = normalize(v+l);
 
-            float bias = max(0.05 * (1.0 - dot(normal, normalize(lightpositions[i].xyz / lightpositions[i].w))), 0.000001);
+            // bias for grainy shadows
+            float bias = max(0.05 * (1.0 - dot(normal, normalize(lightpositions[i].xyz / lightpositions[i].w))), 0.0000007);
 
-            if (current_depth - bias > sampled_depth) {
+            if ((current_depth - bias > sampled_depth)) { // in shadow
                 lights += ambient * lightcolors[i];
-            } else {
+            } else { // in light
                 lights += (ambient + diffuse*max(dot(n,l), 0.0f) + specular*pow(max(dot(n,h), 0.0f), shininess)) * lightcolors[i];
             }
         }

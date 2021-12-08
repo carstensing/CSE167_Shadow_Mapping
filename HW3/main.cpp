@@ -57,18 +57,18 @@ void initialize(void){
 
 void display(void){
 
+    // Shadow Mapping first pass
     glBindFramebuffer(GL_FRAMEBUFFER, (scene.light["sun"])->depthMapFBO); // bind FBO
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, (scene.light["sun"])->shadowWidth, (scene.light["sun"])->shadowWidth); // shadow map's dimensions
     scene.drawDepth((scene.light["sun"])->depth_shader); // draw
     glBindFramebuffer(GL_FRAMEBUFFER, 0); // unbind FBO
 
-    
+    // Shadow Mapping second pass
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, width, height);
     glActiveTexture(GL_TEXTURE0); // activate GL's texture slot
     glBindTexture(GL_TEXTURE_2D, (scene.light["sun"])->depthMap); // bind shadow map texture to activated texture slot
-
     scene.surface_shader->depthMap = (scene.light["sun"])->depthMap;
     scene.drawSurface();
 

@@ -7,6 +7,7 @@ in vec3 normal;   // raw vertex_normal in the model coord
 out vec4 fragColor;
 
 void main (void){
+    // Used to visualize depth
     // far, near are from camera's clipping plane
     float near = 0.01f;
     float far = 100.0f;

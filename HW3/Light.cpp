@@ -5,13 +5,12 @@ Light::Light() {
     depth_shader = new DepthShader();
     light_camera = new Camera();
 
-	std::cout << "test\n";
-
     // Initialize shader
     depth_shader->read_source("shaders/depth.vert", "shaders/depth.frag");
     depth_shader->compile();
     depth_shader->initUniforms();
 
+    // Initialize FBO and texture
     glGenFramebuffers(1, &depthMapFBO);
     glGenTextures(1, &depthMap);
     glBindTexture(GL_TEXTURE_2D, depthMap);
