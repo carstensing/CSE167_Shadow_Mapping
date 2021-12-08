@@ -7,6 +7,8 @@ uniform mat4 model; // from model coord to eye coord
 uniform mat4 view;      // from world coord to eye coord
 
 uniform sampler2D depthMap;
+uniform mat4 viewLS;
+uniform mat4 projLS;
 smooth in vec4 positionLS;
 
 // Material parameters
@@ -27,7 +29,7 @@ uniform vec4 lightcolors[ maximal_allowed_lights ];
 out vec4 fragColor;
 
 void main (void){
-    if (!enablelighting){
+    if (!enablelighting) {
         // Default normal coloring
         vec3 N = normalize(normal);
         fragColor = vec4(0.5f*N + 0.5f , 1.0f);
@@ -37,16 +39,11 @@ void main (void){
 	    float depth = texture(depthMap, ndc.xy).r;
         fragColor = vec4(vec3(depth), 1.f);
         
-        // float depth = texture(depthMap, positionLS.xy).x;
         float near = 0.01f;
         float far = 100.0f;
         float ndc_z = 2 * depth - 1;
         float lin_z = (2.0 * near * far) / (far + near - ndc_z * (far - near)); 
         fragColor = vec4(vec3(lin_z / (far - near)), 1.0f);
-
-        // depth = 1.0 - (1.0 - depth) * 25.0;
-        // fragColor = vec4(vec3(depth), 1.0f);
-        // fragColor = texture(depthMap, position.xy);
 
     } else {
         mat4 camera = inverse(view);
@@ -60,9 +57,22 @@ void main (void){
 
         vec4 lights = vec4(0);
         for (int i=0; i < nlights; i++) {
+
+            vec3 ndc = positionLS.xyz / positionLS.w;
+	        ndc = ndc * 0.5 + 0.5;
+	        float sampled_depth = texture(depthMap, ndc.xy).r;
+            float current_depth = ndc.z;
+
             vec3 l = normalize(vec3(ver_pos.w*lightpositions[i].xyz - lightpositions[i].w*ver_pos.xyz));
             vec3 h = normalize(v+l);
-            lights += (ambient + diffuse*max(dot(n,l), 0.0f) + specular*pow(max(dot(n,h), 0.0f), shininess)) * lightcolors[i];
+
+            float bias = max(0.05 * (1.0 - dot(normal, normalize(lightpositions[i].xyz / lightpositions[i].w))), 0.000001);
+
+            if (current_depth - bias > sampled_depth) {
+                lights += ambient * lightcolors[i];
+            } else {
+                lights += (ambient + diffuse*max(dot(n,l), 0.0f) + specular*pow(max(dot(n,h), 0.0f), shininess)) * lightcolors[i];
+            }
         }
         fragColor = emision + lights;
     }

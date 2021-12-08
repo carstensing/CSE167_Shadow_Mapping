@@ -21,10 +21,10 @@ void Scene::drawDepth(DepthShader* depth_shader) {
 
     // Initialize the current state variable for DFS
     Node* cur = node["world"]; // root of the tree
-    mat4 cur_VM = light["sun"]->light_camera->view;
+    mat4 cur_Model = light["sun"]->light_camera->view;
 
     dfs_stack.push(cur);
-    matrix_stack.push(cur_VM);
+    matrix_stack.push(cur_Model);
 
     while (!dfs_stack.empty()) {
         // Detect whether the search runs into infinite loop by checking whether the stack is longer than the size of the graph.
@@ -36,13 +36,13 @@ void Scene::drawDepth(DepthShader* depth_shader) {
 
         // top-pop the stacks
         cur = dfs_stack.top();        dfs_stack.pop();
-        cur_VM = matrix_stack.top();     matrix_stack.pop();
+        cur_Model = matrix_stack.top();     matrix_stack.pop();
 
         // draw all the models at the current node
         for (unsigned int i = 0; i < cur->models.size(); i++) {
             // Prepare to draw the geometry. Assign the modelview and the material.
 
-            depth_shader->modelview = cur_VM * cur->modeltransforms[i]; // HW3: Without updating cur_VM, modelview would just be camera's view matrix.
+            depth_shader->modelview = cur_Model * cur->modeltransforms[i]; // HW3: Without updating cur_Model, modelview would just be camera's view matrix.
 
             // The draw command
             depth_shader->setUniforms();
@@ -53,7 +53,7 @@ void Scene::drawDepth(DepthShader* depth_shader) {
         for (unsigned int i = 0; i < cur->childnodes.size(); i++) {
             dfs_stack.push(cur->childnodes[i]);
             // (HW3 hint: you should do something here)
-            matrix_stack.push(cur_VM * cur->childtransforms[i]);
+            matrix_stack.push(cur_Model * cur->childtransforms[i]);
         }
 
     } // End of DFS while loop.
@@ -66,13 +66,9 @@ void Scene::drawSurface(void){
     camera->computeMatrices();
     surface_shader->view = camera->view;
     surface_shader->projection = camera->proj;
+
     surface_shader->viewLS = light["sun"]->light_camera->view;
     surface_shader->projLS = light["sun"]->light_camera->proj;
-
-    // do this?
-    // light["sun"]->light_camera ->computeMatrices();
-    // surface_shader->viewLS = light["sun"]->light_camera->view;
-    // surface_shader->projLS = light["sun"]->light_camera->view;
 
     surface_shader->nlights = light.size();
     surface_shader->lightpositions.resize( surface_shader->nlights );
@@ -90,10 +86,10 @@ void Scene::drawSurface(void){
     
     // Initialize the current state variable for DFS
     Node* cur = node["world"]; // root of the tree
-    mat4 cur_VM = camera->view; 
+    mat4 cur_Model = mat4(1.0f);
     
     dfs_stack.push( cur );
-    matrix_stack.push( cur_VM );
+    matrix_stack.push( cur_Model );
     
     while( ! dfs_stack.empty() ){
         // Detect whether the search runs into infinite loop by checking whether the stack is longer than the size of the graph.
@@ -105,14 +101,13 @@ void Scene::drawSurface(void){
         
         // top-pop the stacks
         cur = dfs_stack.top();        dfs_stack.pop();
-        cur_VM = matrix_stack.top();     matrix_stack.pop();
+        cur_Model = matrix_stack.top();     matrix_stack.pop();
         
         // draw all the models at the current node
         for ( unsigned int i = 0; i < cur->models.size(); i++ ){
             // Prepare to draw the geometry. Assign the modelview and the material.
             
-            surface_shader->view = cur_VM;
-            surface_shader->model = cur->modeltransforms[i];
+            surface_shader->model = cur_Model * cur->modeltransforms[i];
             surface_shader->material  = ( cur->models[i] )->material;
             
             // The draw command
@@ -124,7 +119,7 @@ void Scene::drawSurface(void){
         for ( unsigned int i = 0; i < cur->childnodes.size(); i++ ){
             dfs_stack.push( cur->childnodes[i] );
             // (HW3 hint: you should do something here)
-            matrix_stack.push( cur_VM * cur->childtransforms[i] );
+            matrix_stack.push( cur_Model * cur->childtransforms[i] );
         }
         
     } // End of DFS while loop.

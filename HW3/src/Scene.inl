@@ -25,7 +25,7 @@ void Scene::init(void) {
     material["wood"]->shininess = 100.0f;
 
     material["concrete"] = new Material;
-    material["concrete"]->ambient = vec4(0.01f, 0.01f, 0.01f, 1.0f);
+    material["concrete"]->ambient = vec4(0.1f, 0.1f, 0.1f, 1.0f);
     material["concrete"]->diffuse = vec4(0.4f, 0.4f, 0.4f, 1.0f);
     material["concrete"]->specular = vec4(0.01f, 0.01f, 0.01f, 1.0f);
     material["concrete"]->shininess = 100.0f;
@@ -78,7 +78,7 @@ void Scene::init(void) {
     // Create a light palette
     light["sun"] = new Light;
     light["sun"]->position = vec4(3.0f, 2.0f, 1.0f, 0.0f);
-    light["sun"]->color = 1.0f * vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    light["sun"]->color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
     light["sun"]->light_camera->target_default = vec3(0.0f, 1.0f, 0.0f);
     light["sun"]->light_camera->eye_default = vec3(light["sun"]->position)*10.0f;
     light["sun"]->light_camera->up_default = vec3(0.0f, 1.0f, 0.0f);
@@ -151,12 +151,5 @@ void Scene::init(void) {
     surface_shader->compile();
     // glUseProgram(surface_shader->program);
     surface_shader->initUniforms();
-
-    // Initialize DepthShader
-    //depth_shader = new DepthShader;
-    //depth_shader->read_source("shaders/depth.vert", "shaders/depth.frag");
-    //depth_shader->compile();
-    //// glUseProgram(depth_shader->program); // not this 
-    //depth_shader->initUniforms();
 
 }
